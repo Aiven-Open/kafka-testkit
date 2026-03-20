@@ -1,6 +1,6 @@
 # Welcome!
 
-Contributions are very welcome on {{ PROJECT }}. When contributing please keep this in mind:
+Contributions are very welcome on kafka-testkit. When contributing please keep this in mind:
 
 - Open an issue to discuss new bigger features.
 - Write code consistent with the project style and make sure the tests are passing.
