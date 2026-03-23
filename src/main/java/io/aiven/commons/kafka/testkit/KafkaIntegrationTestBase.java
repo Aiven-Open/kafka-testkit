@@ -17,7 +17,7 @@ package io.aiven.commons.kafka.testkit;
 
         SPDX-License-Identifier: Apache-2
  */
-import io.aiven.commons.strings.CasedString;
+import io.aiven.commons.util.strings.CasedString;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.connect.connector.Connector;
 import org.junit.jupiter.api.AfterAll;
