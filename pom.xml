@@ -30,27 +30,123 @@
   <name>Aiven commons testkit for Apache Kafka</name>
   <description>Aiven Kafka testing utilities.  This project is intended to be used in testing and in the test scope.</description>
 
+
+  <inceptionYear>2026</inceptionYear>
+
+  <organization>
+    <name>Aiven</name>
+    <url>https://www.aiven.io</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Apache License 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- please order developers by surname then given name -->
+  <developers>
+    <developer>
+      <id>aindriu-aiven</id>
+      <name>Aindriú Lavelle</name>
+      <email>aindriu.lavelle@aiven.io</email>
+      <organization>Aiven, OY</organization>
+      <organizationUrl>https://aiven.io</organizationUrl>
+      <timezone>Europe/Dublin</timezone>
+    </developer>
+    <developer>
+      <id>claudenw</id>
+      <name>Claude Warren</name>
+      <email>claude.warren@aiven.io</email>
+      <organization>Aiven, OY</organization>
+      <organizationUrl>https://aiven.io</organizationUrl>
+      <timezone>Europe/Dublin</timezone>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/Aiven-Open/kafka-testkit.git</connection>
+    <developerConnection>scm:git:git@github.com:Aiven-Open/kafka-testkit.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/Aiven-Open/kafka-testkit</url>
+  </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>central-snapshot</id>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    </snapshotRepository>
+    <site>
+      <id>staging</id>
+      <!--  For the URL to resolve to the default URL as described in the Apache Site Plugin documentation this URL
+            must be invalid. A ticket is open to resolve this issue. See https://github.com/apache/maven-site-plugin/issues/1140
+            -->
+      <url>invalid:url</url>
+    </site>
+  </distributionManagement>
+
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <checksumPolicy>fail</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>Maven</id>
+      <url>https://repo1.maven.org/maven2/</url>
+    </repository>
+
+    <repository>
+      <id>central</id>
+      <url>https://central.sonatype.com/repository/maven</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+
+    <repository>
+      <id>central-snapshot</id>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <properties>
-    <jdk.version>17</jdk.version>
-    <maven.compiler.source>${jdk.version}</maven.compiler.source>
-    <maven.compiler.target>${jdk.version}</maven.compiler.target>
+    <aiven.utils.version>0.1.0-SNAPSHOT</aiven.utils.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>io.aiven.commons</groupId>
       <artifactId>common-util</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
-      <scope>compile</scope>
+      <version>${aiven.utils.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>connect-api</artifactId>
+      <version>${kafka.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>connect-runtime</artifactId>
+      <version>${kafka.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -74,34 +170,22 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+      <version>${assertj.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
+      <version>${awaitility.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.version}</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
-
-  <repositories>
-    <!-- TODO remove when commons version 2 -->
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>maven-repo</id>
-      <url>https://repo1.maven.org/maven2/</url>
-      <layout>default</layout>
-    </repository>
-  </repositories>
 
   <build>
     <plugins>
