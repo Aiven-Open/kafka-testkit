@@ -1,13 +1,13 @@
 package io.aiven.commons.kafka.testkit;
 
 /*
-        Copyright 2024-2025 Aiven Oy and project contributors
+        Copyright 2026 Aiven Oy and project contributors
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing,
        software distributed under the License is distributed on an
@@ -16,8 +16,9 @@ package io.aiven.commons.kafka.testkit;
        specific language governing permissions and limitations
        under the License.
 
-       SPDX-License-Identifier: Apache-2
+       SPDX-License-Identifier: Apache-2.0
 */
+
 import com.github.dockerjava.api.model.Ulimit;
 import java.time.Duration;
 import java.util.Objects;
@@ -29,13 +30,15 @@ public final class SchemaRegistryContainer extends GenericContainer<SchemaRegist
   /** The schema registry local port */
   public static final int SCHEMA_REGISTRY_PORT = 8081;
 
+  private final String version;
+
   /**
    * Constructs the container with the default version of 4.1.0
    *
    * @param bootstrapServer the url of the kafka bootstrap server.
    */
   public SchemaRegistryContainer(final String bootstrapServer) {
-    this("4.1.0", bootstrapServer);
+    this(/*"4.1.0"*/ "6.1.3", bootstrapServer);
   }
 
   /**
@@ -47,7 +50,8 @@ public final class SchemaRegistryContainer extends GenericContainer<SchemaRegist
   @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
   public SchemaRegistryContainer(final String karapaceVersion, final String bootstrapServer) {
     super("ghcr.io/aiven-open/karapace:" + karapaceVersion);
-    withAccessToHost(true)
+    version = karapaceVersion;
+    withAccessToHost(true) // TODO is this necessary?
         .withEnv("KARAPACE_ADVERTISED_HOSTNAME", "karapace-registry")
         .withEnv("KARAPACE_BOOTSTRAP_URI", bootstrapServer)
         .withEnv("KARAPACE_PORT", String.valueOf(SCHEMA_REGISTRY_PORT))
@@ -69,7 +73,7 @@ public final class SchemaRegistryContainer extends GenericContainer<SchemaRegist
         // Kafka bootstrap server.
         .waitingFor(
             Wait.forHttp("/_health")
-                .forPort(8081)
+                .forPort(8081) // should this be SCHEMA_REGISTRY_PORT?
                 .withReadTimeout(Duration.ofMinutes(1))
                 .forResponsePredicate(
                     response -> response.contains("\"schema_registry_ready\":true")))
@@ -86,5 +90,9 @@ public final class SchemaRegistryContainer extends GenericContainer<SchemaRegist
    */
   public String getSchemaRegistryUrl() {
     return String.format("http://%s:%s", getHost(), getMappedPort(SCHEMA_REGISTRY_PORT));
+  }
+
+  public String getVersion() {
+    return version;
   }
 }

@@ -1,13 +1,11 @@
-package io.aiven.commons.kafka.testkit;
-
 /*
-        Copyright 2025 Aiven Oy and project contributors
+        Copyright 2026 Aiven Oy and project contributors
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing,
        software distributed under the License is distributed on an
@@ -16,8 +14,10 @@ package io.aiven.commons.kafka.testkit;
        specific language governing permissions and limitations
        under the License.
 
-       SPDX-License-Identifier: Apache-2
+       SPDX-License-Identifier: Apache-2.0
 */
+package io.aiven.commons.kafka.testkit;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.connect.connector.Connector;
@@ -160,16 +159,12 @@ public class KafkaIntegrationTestBase {
    * Sets up and returns the KafkaManager. If the KafkaManager has already been set up, this method
    * returns the existing instance.
    *
-   * @param connectorClass the connector class to use.
+   * @param configOverrides overrides for the standard worker configuration.
    * @return a KafkaManager instance. This is equivalent of calling @{code setupKafka(false)}.
    * @throws IOException on IO error.
-   * @throws ExecutionException on execution error.
-   * @throws InterruptedException on interrupted thread.
    */
-  protected final KafkaManager setupKafka(
-      final Class<? extends Connector> connectorClass, Map<String, String> configOverrides)
-      throws IOException, ExecutionException, InterruptedException {
-    return setupKafka(false, connectorClass, configOverrides);
+  protected final KafkaManager setupKafka(Map<String, String> configOverrides) throws IOException {
+    return setupKafka(false, configOverrides);
   }
 
   /**
@@ -177,15 +172,12 @@ public class KafkaIntegrationTestBase {
    * may return an existing instance depending on the state of the @{code forceRestart} flag.
    *
    * @param forceRestart If true any existing KafkaManager is shutdown and a new one created.
-   * @param connectorClass the connector class to use.
+   * @param configOverrides overrides for the standard worker configuration.
    * @return a KafkaManager instance. This is equivalent of calling @{code setupKafka(false)}.
    * @throws IOException on IO error.
    */
   protected final KafkaManager setupKafka(
-      final boolean forceRestart,
-      final Class<? extends Connector> connectorClass,
-      Map<String, String> configOverrides)
-      throws IOException {
+      final boolean forceRestart, Map<String, String> configOverrides) throws IOException {
     KafkaManager kafkaManager = KAFKA_MANAGER_THREAD_LOCAL.get();
     if (kafkaManager != null && forceRestart) {
       tearDownKafka();
@@ -197,8 +189,7 @@ public class KafkaIntegrationTestBase {
                   CasedString.StringCase.CAMEL, testInfo.getTestClass().get().getSimpleName())
               .toCase(CasedString.StringCase.KEBAB)
               .toLowerCase(Locale.ROOT);
-      kafkaManager =
-          new KafkaManager(clusterName, getOffsetFlushInterval(), connectorClass, configOverrides);
+      kafkaManager = new KafkaManager(clusterName, getOffsetFlushInterval(), configOverrides);
       KAFKA_MANAGER_THREAD_LOCAL.set(kafkaManager);
     }
     return kafkaManager;
