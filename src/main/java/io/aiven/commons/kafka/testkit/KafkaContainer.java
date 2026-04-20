@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -113,15 +114,22 @@ public final class KafkaContainer {
    * @param topic the topic to red.
    * @param expectedMessageCount the expected number of messages.
    * @param timeout the maximum time to wait for the messages to arrive.
+   * @param bootstrapServers override the default bootstrap servers
    * @return A list of values returned.
    */
   public List<String> consumeByteMessages(
-      final String topic, final int expectedMessageCount, final Duration timeout) {
+      final String topic,
+      final int expectedMessageCount,
+      final Duration timeout,
+      String bootstrapServers) {
     final Properties consumerProperties = consumerProperties();
     consumerProperties.put(
         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
     consumerProperties.put(
         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
+    if (Objects.nonNull(bootstrapServers)) {
+      consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    }
     final List<ConsumerRecord<byte[], byte[]>> lst =
         consumeMessages(topic, consumerProperties, expectedMessageCount, timeout);
     return lst.stream()
