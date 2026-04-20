@@ -1,13 +1,11 @@
-package io.aiven.commons.kafka.testkit;
-
 /*
-        Copyright 2025 Aiven Oy and project contributors
+        Copyright 2026 Aiven Oy and project contributors
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing,
        software distributed under the License is distributed on an
@@ -16,8 +14,10 @@ package io.aiven.commons.kafka.testkit;
        specific language governing permissions and limitations
        under the License.
 
-       SPDX-License-Identifier: Apache-2
+       SPDX-License-Identifier: Apache-2.0
 */
+package io.aiven.commons.kafka.testkit;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
@@ -26,13 +26,16 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.connect.connector.Connector;
 import org.apache.kafka.connect.util.TopicAdmin;
 import org.apache.kafka.connect.util.clusters.WorkerHandle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 
 /** Manages a containerized Kafka and some associated components. */
 public final class KafkaManager {
+  private static final Logger LOGGER = LoggerFactory.getLogger(KafkaManager.class);
+
   /** The topic administrator. */
   private final TopicAdmin topicAdmin;
 
@@ -40,24 +43,23 @@ public final class KafkaManager {
   private final KafkaConnectRunner connectRunner;
 
   /** A schema registry. */
-  private final SchemaRegistryContainer schemaRegistry;
+  private SchemaRegistryContainer schemaRegistry;
 
   /**
    * Constructor.
    *
    * @param clusterName The name for the cluster
    * @param offsetFlushInterval the offset topic flush interval.
-   * @param connectorClass the connector class to execute.
+   * @param configOverrides overrides for the standard worker configuration.
    * @throws IOException if the cluster can not be started.
    */
   public KafkaManager(
       final String clusterName,
       final Duration offsetFlushInterval,
-      final Class<? extends Connector> connectorClass,
       Map<String, String> configOverrides)
       throws IOException {
     connectRunner = new KafkaConnectRunner(offsetFlushInterval);
-    connectRunner.startConnectCluster(clusterName, connectorClass, configOverrides);
+    connectRunner.startConnectCluster(clusterName, configOverrides);
 
     final Map<String, Object> adminClientConfig = new HashMap<>();
     adminClientConfig.put(
@@ -68,11 +70,25 @@ public final class KafkaManager {
     // by host but
     // before the container that will access it is started.
     Testcontainers.exposeHostPorts(connectRunner.getContainerPort());
-    schemaRegistry =
-        new SchemaRegistryContainer(
-            "host.testcontainers.internal:" + connectRunner.getContainerPort());
-    schemaRegistry.start();
-    KafkaIntegrationTestBase.waitForRunningContainer(schemaRegistry);
+
+    schemaRegistry = null;
+  }
+
+  /**
+   * Adds a schema registry to the manager if one is not already present.
+   *
+   * @return this.
+   */
+  public KafkaManager withSchemaRegistry() {
+    if (schemaRegistry == null) {
+      schemaRegistry = new SchemaRegistryContainer(connectRunner.getBootstrapServers());
+      // "host.testcontainers.internal:" + connectRunner.getContainerPort());
+      schemaRegistry.start();
+      KafkaIntegrationTestBase.waitForRunningContainer(schemaRegistry);
+    } else {
+      LOGGER.warn("Karapace version {} is already running", schemaRegistry.getVersion());
+    }
+    return this;
   }
 
   /**
@@ -213,11 +229,24 @@ public final class KafkaManager {
   }
 
   /**
+   * Determines if a schema registry has been loaded.
+   *
+   * @return {@code true} if the registry has been loaded, {@code false} otherwise.
+   */
+  public boolean hasSchemaRegistry() {
+    return schemaRegistry != null;
+  }
+
+  /**
    * Gets the schema registry URL as a string.
    *
    * @return the schema registry URL.
    */
   public String getSchemaRegistryUrl() {
+    if (schemaRegistry == null) {
+      LOGGER.warn("NO schema registry started");
+      throw new NullPointerException("Schema registry not started");
+    }
     return schemaRegistry.getSchemaRegistryUrl();
   }
 
@@ -225,7 +254,9 @@ public final class KafkaManager {
   public void stop() {
     topicAdmin.close();
     connectRunner.stopConnectCluster();
-    schemaRegistry.stop();
+    if (schemaRegistry != null) {
+      schemaRegistry.stop();
+    }
   }
 
   /**

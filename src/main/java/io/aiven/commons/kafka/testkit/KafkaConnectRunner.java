@@ -1,13 +1,11 @@
-package io.aiven.commons.kafka.testkit;
-
 /*
-        Copyright 2024-2025 Aiven Oy and project contributors
+        Copyright 2026 Aiven Oy and project contributors
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing,
        software distributed under the License is distributed on an
@@ -16,8 +14,10 @@ package io.aiven.commons.kafka.testkit;
        specific language governing permissions and limitations
        under the License.
 
-       SPDX-License-Identifier: Apache-2
+       SPDX-License-Identifier: Apache-2.0
 */
+package io.aiven.commons.kafka.testkit;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Duration;
@@ -31,6 +31,7 @@ import org.apache.kafka.connect.connector.Connector;
 import org.apache.kafka.connect.converters.ByteArrayConverter;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
 import org.apache.kafka.connect.runtime.WorkerConfig;
+import org.apache.kafka.connect.runtime.rest.entities.ConnectorStateInfo;
 import org.apache.kafka.connect.util.clusters.EmbeddedConnectCluster;
 import org.apache.kafka.connect.util.clusters.WorkerHandle;
 import org.slf4j.Logger;
@@ -135,56 +136,54 @@ public final class KafkaConnectRunner {
    * Starts a connect cluster.
    *
    * @param clusterName the name for the cluster
-   * @param connectorClass the class for the connector.
+   * @param configOverrides overrides for the standard worker configuration.
    * @throws IOException if listener ports can not be found.
    */
-  public void startConnectCluster(
-      final String clusterName,
-      final Class<? extends Connector> connectorClass,
-      Map<String, String> configOverrides)
+  public void startConnectCluster(final String clusterName, Map<String, String> configOverrides)
       throws IOException {
     final List<Integer> ports = findListenerPorts();
-    startConnectCluster(clusterName, ports.get(0), ports.get(1), connectorClass, configOverrides);
+    startConnectCluster(clusterName, ports.get(0), ports.get(1), configOverrides);
   }
 
   /**
    * Starts a connect cluster
    *
    * @param clusterName the name for the cluster
-   * @param localPort the local port for the server.
-   * @param containerPort the container port for the server.
-   * @param connectorClass the class for the connector.
+   * @param internalPort the local port for internal communications.
+   * @param externalPort the container port for external communications.
+   * @param configOverrides overrides for the standard worker configuration.
    */
   public void startConnectCluster(
       final String clusterName,
-      final int localPort,
-      final int containerPort,
-      final Class<? extends Connector> connectorClass,
+      final int internalPort,
+      final int externalPort,
       Map<String, String> configOverrides) {
     this.clusterName = clusterName;
-    this.containerListenerPort = containerPort;
-    final Properties brokerProperties = new Properties();
-    brokerProperties.put(
-        "advertised.listeners",
-        "PLAINTEXT://localhost:"
-            + localPort
-            + ",TESTCONTAINERS://host.testcontainers.internal:"
-            + containerPort);
-    brokerProperties.put(
-        "listeners",
-        "PLAINTEXT://localhost:" + localPort + ",TESTCONTAINERS://localhost:" + containerPort);
-    brokerProperties.put(
-        "listener.security.protocol.map", "PLAINTEXT:PLAINTEXT,TESTCONTAINERS:PLAINTEXT");
-
+    this.containerListenerPort = externalPort;
     connectCluster =
         new EmbeddedConnectCluster.Builder()
             .name(clusterName)
-            .brokerProps(brokerProperties)
-            .workerProps(getWorkerProperties(connectorClass, configOverrides))
+            .brokerProps(getBrokerProperties(internalPort, externalPort))
+            .workerProps(getWorkerProperties(null, configOverrides))
             .numWorkers(1)
             .build();
     connectCluster.start();
     LOGGER.info("connectCluster {} started", clusterName);
+  }
+
+  private Properties getBrokerProperties(int internalPort, int externalPort) {
+    final String internal = "INTERNAL://localhost:" + internalPort;
+    final String external = "EXTERNAL://localhost:" + externalPort;
+    final Properties brokerProperties = new Properties();
+    brokerProperties.put("process.roles", "broker,controller");
+    brokerProperties.put("node.id", "1");
+    brokerProperties.put("controller.quorum.voters", "1@localhost:" + internalPort);
+    brokerProperties.put("listeners", String.join(",", internal, external));
+    brokerProperties.put("inter.broker.listener.name", "EXTERNAL");
+    brokerProperties.put("advertised.listeners", String.join(",", internal, external));
+    brokerProperties.put("controller.listener.names", "INTERNAL");
+    brokerProperties.put("listener.security.protocol.map", "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT");
+    return brokerProperties;
   }
 
   /**
@@ -203,6 +202,15 @@ public final class KafkaConnectRunner {
    */
   public String getBootstrapServers() {
     return connectCluster.kafka().bootstrapServers();
+  }
+
+  /**
+   * Determines if a connector is defined in the cluster.
+   *
+   * @param connectorName the container to delete.
+   */
+  public boolean hasConnector(final String connectorName) {
+    return connectCluster.connectors().contains(connectorName);
   }
 
   /**
@@ -229,7 +237,7 @@ public final class KafkaConnectRunner {
    * Configures a connector.
    *
    * @param connectorName The name for the connector.
-   * @param connectorConfig the map of data items for the configuraiton of the connector.
+   * @param connectorConfig the map of data items for the configuration of the connector.
    * @return the result of the cluster configuration call.
    */
   public String configureConnector(
@@ -266,6 +274,10 @@ public final class KafkaConnectRunner {
       connectCluster.restartConnector(connectorName);
       LOGGER.info("Connector {} restarted", connectorName);
     }
+  }
+
+  public ConnectorStateInfo connectorStatus(final String connectorName) {
+    return connectCluster.connectorStatus(connectorName);
   }
 
   /**
