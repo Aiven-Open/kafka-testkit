@@ -54,15 +54,18 @@ public final class KafkaConnectRunner {
   private String clusterName;
 
   /**
-   * Finds 2 simultaneously free port for Kafka listeners
+   * Finds 3 currently available ports for Kafka listeners and KRaft controller.
    *
-   * @return list of 2 ports
+   * <p>The returned ports are not reserved after this method returns.
+   *
+   * @return list of 3 candidate ports
    * @throws IOException when port allocation failure happens
    */
   static List<Integer> findListenerPorts() throws IOException {
     try (ServerSocket socket = new ServerSocket(0);
-        ServerSocket socket2 = new ServerSocket(0)) {
-      return Arrays.asList(socket.getLocalPort(), socket2.getLocalPort());
+        ServerSocket socket2 = new ServerSocket(0);
+        ServerSocket socket3 = new ServerSocket(0)) {
+      return Arrays.asList(socket.getLocalPort(), socket2.getLocalPort(), socket3.getLocalPort());
     } catch (IOException e) {
       throw new IOException("Failed to allocate port for test", e);
     }
@@ -144,21 +147,24 @@ public final class KafkaConnectRunner {
       Map<String, String> configOverrides)
       throws IOException {
     final List<Integer> ports = findListenerPorts();
-    startConnectCluster(clusterName, ports.get(0), ports.get(1), connectorClass, configOverrides);
+    startConnectCluster(
+        clusterName, ports.get(0), ports.get(1), ports.get(2), connectorClass, configOverrides);
   }
 
   /**
-   * Starts a connect cluster
+   * Starts a connect cluster.
    *
-   * @param clusterName the name for the cluster
+   * @param clusterName the name for the cluster.
    * @param localPort the local port for the server.
    * @param containerPort the container port for the server.
+   * @param controllerPort the internal controller listener port.
    * @param connectorClass the class for the connector.
    */
   public void startConnectCluster(
       final String clusterName,
       final int localPort,
       final int containerPort,
+      final int controllerPort,
       final Class<? extends Connector> connectorClass,
       Map<String, String> configOverrides) {
     this.clusterName = clusterName;
@@ -166,15 +172,26 @@ public final class KafkaConnectRunner {
     final Properties brokerProperties = new Properties();
     brokerProperties.put(
         "advertised.listeners",
-        "PLAINTEXT://localhost:"
+        "EXTERNAL://localhost:"
             + localPort
             + ",TESTCONTAINERS://host.testcontainers.internal:"
             + containerPort);
     brokerProperties.put(
         "listeners",
-        "PLAINTEXT://localhost:" + localPort + ",TESTCONTAINERS://localhost:" + containerPort);
+        "EXTERNAL://localhost:"
+            + localPort
+            + ",TESTCONTAINERS://0.0.0.0:"
+            + containerPort
+            + ",CONTROLLER://localhost:"
+            + controllerPort);
     brokerProperties.put(
-        "listener.security.protocol.map", "PLAINTEXT:PLAINTEXT,TESTCONTAINERS:PLAINTEXT");
+        "listener.security.protocol.map",
+        "EXTERNAL:PLAINTEXT,TESTCONTAINERS:PLAINTEXT,CONTROLLER:PLAINTEXT");
+    brokerProperties.put("inter.broker.listener.name", "EXTERNAL");
+    brokerProperties.put("process.roles", "broker,controller");
+    brokerProperties.put("node.id", "1");
+    brokerProperties.put("controller.listener.names", "CONTROLLER");
+    brokerProperties.put("controller.quorum.voters", "1@localhost:" + controllerPort);
 
     connectCluster =
         new EmbeddedConnectCluster.Builder()
