@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.connect.connector.Connector;
+import org.apache.kafka.connect.runtime.ConnectorConfig;
 import org.apache.kafka.connect.util.TopicAdmin;
 import org.apache.kafka.connect.util.clusters.WorkerHandle;
 import org.testcontainers.Testcontainers;
@@ -40,7 +41,10 @@ public final class KafkaManager {
   private final KafkaConnectRunner connectRunner;
 
   /** A schema registry. */
-  private final SchemaRegistryContainer schemaRegistry;
+  private SchemaRegistryContainer schemaRegistry;
+
+  /** Default connector class used for test connector configurations. */
+  private final Class<? extends Connector> connectorClass;
 
   /**
    * Constructor.
@@ -56,6 +60,7 @@ public final class KafkaManager {
       final Class<? extends Connector> connectorClass,
       Map<String, String> configOverrides)
       throws IOException {
+    this.connectorClass = connectorClass;
     connectRunner = new KafkaConnectRunner(offsetFlushInterval);
     connectRunner.startConnectCluster(clusterName, connectorClass, configOverrides);
 
@@ -64,9 +69,7 @@ public final class KafkaManager {
         AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, connectRunner.getBootstrapServers());
     topicAdmin = new TopicAdmin(adminClientConfig);
 
-    // This should be done after the process listening the port is already started
-    // by host but
-    // before the container that will access it is started.
+    // Expose Kafka host port before starting containerized clients.
     Testcontainers.exposeHostPorts(connectRunner.getContainerPort());
     schemaRegistry =
         new SchemaRegistryContainer(
@@ -177,12 +180,17 @@ public final class KafkaManager {
    * Configure the connector.
    *
    * @param connectorName the connector name.
-   * @param connectorConfig the configuraiton for the connector.
+   * @param connectorConfig the configuration for the connector.
    * @return the result of the configuration call.
    */
   public String configureConnector(
       final String connectorName, final Map<String, String> connectorConfig) {
-    return connectRunner.configureConnector(connectorName, connectorConfig);
+    final Map<String, String> effectiveConnectorConfig = new HashMap<>(connectorConfig);
+    if (connectorClass != null) {
+      effectiveConnectorConfig.putIfAbsent(
+          ConnectorConfig.CONNECTOR_CLASS_CONFIG, connectorClass.getName());
+    }
+    return connectRunner.configureConnector(connectorName, effectiveConnectorConfig);
   }
 
   /**
@@ -218,6 +226,9 @@ public final class KafkaManager {
    * @return the schema registry URL.
    */
   public String getSchemaRegistryUrl() {
+    if (schemaRegistry == null) {
+      throw new IllegalStateException("Schema Registry is not running");
+    }
     return schemaRegistry.getSchemaRegistryUrl();
   }
 
@@ -225,7 +236,10 @@ public final class KafkaManager {
   public void stop() {
     topicAdmin.close();
     connectRunner.stopConnectCluster();
-    schemaRegistry.stop();
+    if (schemaRegistry != null) {
+      schemaRegistry.stop();
+      schemaRegistry = null;
+    }
   }
 
   /**
