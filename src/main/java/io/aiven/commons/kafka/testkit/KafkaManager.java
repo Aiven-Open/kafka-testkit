@@ -58,11 +58,11 @@ public final class KafkaManager {
       final String clusterName,
       final Duration offsetFlushInterval,
       final Class<? extends Connector> connectorClass,
-      Map<String, String> configOverrides)
+      Map<String, String> connectorConfig)
       throws IOException {
     this.connectorClass = connectorClass;
     connectRunner = new KafkaConnectRunner(offsetFlushInterval);
-    connectRunner.startConnectCluster(clusterName, connectorClass, configOverrides);
+    connectRunner.startConnectCluster(clusterName, connectorClass, connectorConfig);
 
     final Map<String, Object> adminClientConfig = new HashMap<>();
     adminClientConfig.put(

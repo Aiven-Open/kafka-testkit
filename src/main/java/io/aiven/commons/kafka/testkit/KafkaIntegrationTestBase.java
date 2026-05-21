@@ -250,7 +250,7 @@ public class KafkaIntegrationTestBase {
   }
 
   /**
-   * Wait until storageList returns all the items in expectedStorage.
+   * Wait until storageList returns all the items in expectedStorage in any order.
    *
    * @param timeout the maximum duration to wait.
    * @param storageList The supplier of the storage list.
@@ -269,12 +269,12 @@ public class KafkaIntegrationTestBase {
         .pollInterval(Duration.ofSeconds(1))
         .untilAsserted(
             () -> {
-              assertThat(storageList.get()).containsExactly(expectedStorage);
+              assertThat(storageList.get()).containsExactlyInAnyOrder(expectedStorage);
             });
   }
 
   /**
-   * Wait until storageList returns all the items in expectedStorage.
+   * Wait until storageList returns all the items in expectedStorage in any order.
    *
    * @param timeout the maximum duration to wait.
    * @param storageList The supplier of the storage list.
@@ -292,7 +292,7 @@ public class KafkaIntegrationTestBase {
         .pollInterval(Duration.ofSeconds(1))
         .untilAsserted(
             () -> {
-              assertThat(storageList.get()).contains((K[]) expectedStorage.toArray());
+              assertThat(storageList.get()).containsExactlyInAnyOrderElementsOf(expectedStorage);
             });
   }
 }

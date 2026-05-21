@@ -138,17 +138,18 @@ public final class KafkaConnectRunner {
    * Starts a connect cluster.
    *
    * @param clusterName the name for the cluster
-   * @param connectorClass the class for the connector.
+   * @param connectorClass the class for the connector under test.
+   * @param connectorConfig the configuration for the connector under test.
    * @throws IOException if listener ports can not be found.
    */
   public void startConnectCluster(
       final String clusterName,
       final Class<? extends Connector> connectorClass,
-      Map<String, String> configOverrides)
+      final Map<String, String> connectorConfig)
       throws IOException {
     final List<Integer> ports = findListenerPorts();
     startConnectCluster(
-        clusterName, ports.get(0), ports.get(1), ports.get(2), connectorClass, configOverrides);
+        clusterName, ports.get(0), ports.get(1), ports.get(2), connectorClass, connectorConfig);
   }
 
   /**
@@ -158,7 +159,8 @@ public final class KafkaConnectRunner {
    * @param localPort the local port for the server.
    * @param containerPort the container port for the server.
    * @param controllerPort the internal controller listener port.
-   * @param connectorClass the class for the connector.
+   * @param connectorClass the class for the connector under test.
+   * @param connectorConfig the configuration options for the connector under test.
    */
   public void startConnectCluster(
       final String clusterName,
@@ -166,7 +168,7 @@ public final class KafkaConnectRunner {
       final int containerPort,
       final int controllerPort,
       final Class<? extends Connector> connectorClass,
-      Map<String, String> configOverrides) {
+      final Map<String, String> connectorConfig) {
     this.clusterName = clusterName;
     this.containerListenerPort = containerPort;
     final Properties brokerProperties = new Properties();
@@ -197,7 +199,7 @@ public final class KafkaConnectRunner {
         new EmbeddedConnectCluster.Builder()
             .name(clusterName)
             .brokerProps(brokerProperties)
-            .workerProps(getWorkerProperties(connectorClass, configOverrides))
+            .workerProps(getWorkerProperties(connectorClass, connectorConfig))
             .numWorkers(1)
             .build();
     connectCluster.start();
@@ -296,21 +298,24 @@ public final class KafkaConnectRunner {
    *   <li>connector class = connector class (if not {@code null}
    * </ul>
    *
+   * These propertiesmay be overridden in teh connectorConfig parameter.
+   *
    * @param connectorClass the connector class to start, may be {@code null}.
+   * @param connectorConfig the map of properties for the connector under test.
    * @return the default set of worker properties.
    */
   public Map<String, String> getWorkerProperties(
-      final Class<? extends Connector> connectorClass, final Map<String, String> configOverrides) {
+      final Class<? extends Connector> connectorClass, final Map<String, String> connectorConfig) {
     Map<String, String> workerProperties = new HashMap<>();
     workerProperties.put(
         ConnectorConfig.KEY_CONVERTER_CLASS_CONFIG, ByteArrayConverter.class.getName());
     workerProperties.put(
-        ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, ByteArrayConverter.class.getCanonicalName());
+        ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, ByteArrayConverter.class.getName());
     workerProperties.put(
         WorkerConfig.OFFSET_COMMIT_INTERVAL_MS_CONFIG,
         Long.toString(offsetFlushInterval.toMillis()));
     workerProperties.put("plugin.discovery", "HYBRID_WARN");
-    workerProperties.putAll(configOverrides);
+    workerProperties.putAll(connectorConfig);
     if (connectorClass != null) {
       workerProperties.put(ConnectorConfig.CONNECTOR_CLASS_CONFIG, connectorClass.getName());
     }
