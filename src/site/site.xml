@@ -61,8 +61,8 @@
             <item name="Contributing" href="./contributing.html" />
             <item name="Security Policy" href="./SECURITY.html" />
         </menu>
-        <menu ref="reports"/>
 
+        <menu ref="reports"/>
 
         <links>
             <item name="Apache Kafka" href="http://kafka.apache.org"/>
@@ -84,7 +84,7 @@
             <sideBarEnabled>true</sideBarEnabled>
             <skipGenerationDate>true</skipGenerationDate>
             <gitHub>
-                <projectId>aiven-open/aiven-commons</projectId>
+                <projectId>aiven-open/kafka-testkit</projectId>
                 <ribbonOrientation>right</ribbonOrientation>
                 <ribbonColor>orange</ribbonColor>
             </gitHub>
