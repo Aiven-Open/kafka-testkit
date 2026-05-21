@@ -7,7 +7,7 @@ package io.aiven.commons.kafka.testkit;
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing,
        software distributed under the License is distributed on an
@@ -16,7 +16,7 @@ package io.aiven.commons.kafka.testkit;
        specific language governing permissions and limitations
        under the License.
 
-       SPDX-License-Identifier: Apache-2
+       SPDX-License-Identifier: Apache-2.0
 */
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -36,7 +36,10 @@ import org.apache.kafka.connect.util.clusters.WorkerHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Runs an embedded connect cluster. */
+/**
+ * Manages an embedded connect cluster for a specific broker configuration. The broker configuration
+ * may be based on the configuration for a specific kafka connector.
+ */
 public final class KafkaConnectRunner {
   /** The logger */
   private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConnectRunner.class);
@@ -156,7 +159,7 @@ public final class KafkaConnectRunner {
    * Starts a connect cluster.
    *
    * @param clusterName the name for the cluster.
-   * @param localPort the local port for the server.
+   * @param localPort the local port for the server.EmbeddedConnectCluster
    * @param containerPort the container port for the server.
    * @param controllerPort the internal controller listener port.
    * @param connectorClass the class for the connector under test.

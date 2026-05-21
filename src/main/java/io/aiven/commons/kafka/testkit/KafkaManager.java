@@ -7,7 +7,7 @@ package io.aiven.commons.kafka.testkit;
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing,
        software distributed under the License is distributed on an
@@ -16,7 +16,7 @@ package io.aiven.commons.kafka.testkit;
        specific language governing permissions and limitations
        under the License.
 
-       SPDX-License-Identifier: Apache-2
+       SPDX-License-Identifier: Apache-2.0
 */
 import java.io.IOException;
 import java.time.Duration;
@@ -32,9 +32,9 @@ import org.apache.kafka.connect.util.TopicAdmin;
 import org.apache.kafka.connect.util.clusters.WorkerHandle;
 import org.testcontainers.Testcontainers;
 
-/** Manages a containerized Kafka and some associated components. */
+/** Manages a containerized Kafka, schema registry, and some associated components. */
 public final class KafkaManager {
-  /** The topic administrator. */
+  /** The topic administrator to manage topic creation. */
   private final TopicAdmin topicAdmin;
 
   /** A connect runner instance. */

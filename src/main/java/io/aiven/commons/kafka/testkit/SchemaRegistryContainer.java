@@ -7,7 +7,7 @@ package io.aiven.commons.kafka.testkit;
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing,
        software distributed under the License is distributed on an
@@ -16,7 +16,7 @@ package io.aiven.commons.kafka.testkit;
        specific language governing permissions and limitations
        under the License.
 
-       SPDX-License-Identifier: Apache-2
+       SPDX-License-Identifier: Apache-2.0
 */
 import com.github.dockerjava.api.model.Ulimit;
 import java.time.Duration;
@@ -24,7 +24,11 @@ import java.util.Objects;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
-/** A container for the schema registry. */
+/**
+ * A container with a Karapace schema registry.
+ *
+ * @see <a href="https://github.com/Aiven-Open/karapace">Karapace GitHub repository</a>.
+ */
 public final class SchemaRegistryContainer extends GenericContainer<SchemaRegistryContainer> {
   /** The schema registry local port */
   public static final int SCHEMA_REGISTRY_PORT = 8081;
