@@ -87,7 +87,7 @@
   </distributionManagement>
 
   <properties>
-    <aiven.utils.version>0.2.0-SNAPSHOT</aiven.utils.version>
+    <aiven.utils.version>0.2.0</aiven.utils.version>
     <latestRelease>none</latestRelease>
   </properties>
 
