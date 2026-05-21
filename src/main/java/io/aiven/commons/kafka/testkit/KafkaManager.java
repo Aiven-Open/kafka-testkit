@@ -51,14 +51,15 @@ public final class KafkaManager {
    *
    * @param clusterName The name for the cluster
    * @param offsetFlushInterval the offset topic flush interval.
-   * @param connectorClass the connector class to execute.
+   * @param connectorClass the class of the connector under test.
+   * @param connectorConfig the configuration for the connector under test.
    * @throws IOException if the cluster can not be started.
    */
   public KafkaManager(
       final String clusterName,
       final Duration offsetFlushInterval,
       final Class<? extends Connector> connectorClass,
-      Map<String, String> connectorConfig)
+      final Map<String, String> connectorConfig)
       throws IOException {
     this.connectorClass = connectorClass;
     connectRunner = new KafkaConnectRunner(offsetFlushInterval);

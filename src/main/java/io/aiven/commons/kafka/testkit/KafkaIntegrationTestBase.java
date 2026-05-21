@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.connect.connector.Connector;
@@ -160,16 +159,15 @@ public class KafkaIntegrationTestBase {
    * Sets up and returns the KafkaManager. If the KafkaManager has already been set up, this method
    * returns the existing instance.
    *
-   * @param connectorClass the connector class to use.
+   * @param connectorClass the class of the connector under test.
+   * @param connectorConfig the configuration for the connector under test.
    * @return a KafkaManager instance. This is equivalent of calling @{code setupKafka(false)}.
    * @throws IOException on IO error.
-   * @throws ExecutionException on execution error.
-   * @throws InterruptedException on interrupted thread.
    */
   protected final KafkaManager setupKafka(
-      final Class<? extends Connector> connectorClass, Map<String, String> configOverrides)
-      throws IOException, ExecutionException, InterruptedException {
-    return setupKafka(false, connectorClass, configOverrides);
+      final Class<? extends Connector> connectorClass, final Map<String, String> connectorConfig)
+      throws IOException {
+    return setupKafka(false, connectorClass, connectorConfig);
   }
 
   /**
@@ -177,14 +175,15 @@ public class KafkaIntegrationTestBase {
    * may return an existing instance depending on the state of the @{code forceRestart} flag.
    *
    * @param forceRestart If true any existing KafkaManager is shutdown and a new one created.
-   * @param connectorClass the connector class to use.
+   * @param connectorClass the class of the connector under test.
+   * @param connectorConfig the configuration for the connector under test.
    * @return a KafkaManager instance. This is equivalent of calling @{code setupKafka(false)}.
    * @throws IOException on IO error.
    */
   protected final KafkaManager setupKafka(
       final boolean forceRestart,
       final Class<? extends Connector> connectorClass,
-      Map<String, String> configOverrides)
+      final Map<String, String> connectorConfig)
       throws IOException {
     KafkaManager kafkaManager = KAFKA_MANAGER_THREAD_LOCAL.get();
     if (kafkaManager != null && forceRestart) {
@@ -198,7 +197,7 @@ public class KafkaIntegrationTestBase {
               .toCase(CasedString.StringCase.KEBAB)
               .toLowerCase(Locale.ROOT);
       kafkaManager =
-          new KafkaManager(clusterName, getOffsetFlushInterval(), connectorClass, configOverrides);
+          new KafkaManager(clusterName, getOffsetFlushInterval(), connectorClass, connectorConfig);
       KAFKA_MANAGER_THREAD_LOCAL.set(kafkaManager);
     }
     return kafkaManager;
