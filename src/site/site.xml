@@ -53,7 +53,7 @@
 
         <menu name="Overview" inherit="bottom" inheritAsRef="true">
             <item name="Introduction" href="./index.html"/>
-            <item name="Architecture Overview" href="./architectuer.html" />
+            <item name="Architecture Overview" href="./architecture.html" />
             <item name="Change Log" href="./CHANGE_LOG.html" />
         </menu>
 
