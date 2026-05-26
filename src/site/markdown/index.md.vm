@@ -20,7 +20,7 @@
 ${project.name}
 ======================
 
-This project provides a set of utilities to assist in testing Kafak connectors. This is an open source project, and we welcome participation from all parties.  Read the "Getting Involved" section if you are interested in contributing.
+This project provides a set of utilities to assist in testing Kafka connectors. This is an open source project, and we welcome participation from all parties.  Read the "Getting Involved" section if you are interested in contributing.
 
 Overview
 -------
@@ -33,8 +33,8 @@ Overview
 Build
 ----------
 
-The latest release is ${project.properties.latestRelease} and is available for download from the Maven repository or via the [releases](${project.url}/releases) page.
-Please note that all jars are provided for your convenience, the project delivery is the source code found in the [project git repository](${project.url}).  The tar and zip packages contain the release jar as well as all dependencies except those that are provided by the Kafka infrastructure.
+The latest release is ${project.properties.latestRelease} and is available for download from the Maven repository or via the [releases](${project.scm.url}/releases) page.
+Please note that all jars are provided for your convenience, the project delivery is the source code found in the [project git repository](${project.scm.url}).  The tar and zip packages contain the release jar as well as all dependencies except those that are provided by the Kafka infrastructure.
 
 To build the test kit execute `mvn install`.  This will create the jars and install them in your local maven repository where they can be accessed from other projects.
 

@@ -36,4 +36,4 @@ git log --format=' - %s'  ${commits}
 
 printf "\n\n### Co-authored by\n"
 git log --format=' - %an'  ${commits} | sort -u
-printf "\n\n### Full Changelog\nhttps://github.com/Aiven-Open/aiven-commons/compare/${startTag}...${endTag}\n\n"
+printf "\n\n### Full Changelog\nhttps://github.com/Aiven-Open/aiven-testkit/compare/${startTag}...${endTag}\n\n"
