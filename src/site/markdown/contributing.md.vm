@@ -26,7 +26,7 @@ Contributions are very welcome on the ${project.name}. When contributing please 
 
 # Development
 
-The source for this project is found in GitHub at ${project.url}.
+The source for this project is found in GitHub at ${project.scm.url}.
 
 The project is developed using Maven and builds under Java ${context.get("jdk.version")}.
 
@@ -57,7 +57,7 @@ All code must include an Apache license header.  Any header that passes the [Apa
 To setup a local development environment clone the GitHub repository and execute the maven install option
 
 ```
-git clone ${project.url}.git
+git clone ${project.scm.url}.git
 cd kafka-testkit
 mvn install
 ```
