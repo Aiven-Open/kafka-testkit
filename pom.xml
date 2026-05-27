@@ -26,7 +26,7 @@
   </parent>
 
   <artifactId>kafka-testkit</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0-SNAPSHOT</version>
   <name>Aiven commons testkit for Apache Kafka</name>
   <description>Aiven Kafka testing utilities.  This project is intended to be used in testing and in the test scope.</description>
   <!-- <url>https://aiven-open.github.io/kafka-testkit/</url> -->
