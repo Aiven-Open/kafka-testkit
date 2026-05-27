@@ -26,7 +26,7 @@
   </parent>
 
   <artifactId>kafka-testkit</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <name>Aiven commons testkit for Apache Kafka</name>
   <description>Aiven Kafka testing utilities.  This project is intended to be used in testing and in the test scope.</description>
   <!-- <url>https://aiven-open.github.io/kafka-testkit/</url> -->
@@ -89,7 +89,7 @@
 
   <properties>
     <aiven.utils.version>0.2.0</aiven.utils.version>
-    <latestRelease>none</latestRelease>
+    <latestRelease>0.1.0</latestRelease>
     <plugin.enforcer.version>3.6.2</plugin.enforcer.version>
   </properties>
 
