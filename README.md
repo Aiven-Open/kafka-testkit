@@ -14,7 +14,7 @@
     specific language governing permissions and limitations
     under the License.
 
-    SPDX-License-Identifier: Apache-2
+    SPDX-License-Identifier: Apache-2.0
 -->
 kafka-testkit
 ======================
@@ -26,11 +26,14 @@ A library of utilities to make testing of kafka connect easier.
 Overview
 ========
 
-Features
-============
+The project is designed to make executing Kafka connect tests easier.  It also has application for any java project that needs to start a Kafka system for verification.
+We produce and maintain [documentation](https://aiven-open.github.io/kafka-testkit) as part of this project.
 
 Setup
 ============
+
+This project uses the Maven build system.  We recommend executing `mvn clean install site` initially to compile the code and generate the documentation locally.
+Documentation may be opened by pointing a browser to 'target/site/index.html'.
 
 License
 ============
@@ -40,5 +43,5 @@ Please note that the project explicitly does not require a CLA (Contributor Lice
 
 Contact
 ============
-Bug reports and patches are very welcome, please post them as GitHub issues and pull requests at https://github.com/aiven/{{PROJECT_NAME}} . 
+Bug reports and patches are very welcome, please post them as GitHub issues and pull requests at https://github.com/aiven-open/kafka-testkit . 
 To report any possible vulnerabilities or other serious issues please see our [security](SECURITY.md) policy.
