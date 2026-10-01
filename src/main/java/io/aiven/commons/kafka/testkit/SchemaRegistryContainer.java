@@ -34,12 +34,12 @@ public final class SchemaRegistryContainer extends GenericContainer<SchemaRegist
   public static final int SCHEMA_REGISTRY_PORT = 8081;
 
   /**
-   * Constructs the container with the default version of 4.1.0
+   * Constructs the container with the the latest karapace release version.
    *
    * @param bootstrapServer the url of the kafka bootstrap server.
    */
   public SchemaRegistryContainer(final String bootstrapServer) {
-    this("4.1.0", bootstrapServer);
+    this("latest", bootstrapServer);
   }
 
   /**
