@@ -24,7 +24,6 @@
  
  - Aindriú Lavelle
  - Claude Warren
- - github-actions[bot]
  - Ryan Skraba
  
  
