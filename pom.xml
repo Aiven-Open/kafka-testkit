@@ -22,14 +22,13 @@
   <parent>
     <groupId>io.aiven.commons</groupId>
     <artifactId>aiven-commons</artifactId>
-    <version>5-SNAPSHOT</version>
+    <version>5</version>
   </parent>
 
   <artifactId>kafka-testkit</artifactId>
   <version>0.2.0-SNAPSHOT</version>
   <name>Aiven commons testkit for Apache Kafka</name>
   <description>Aiven Kafka testing utilities.  This project is intended to be used in testing and in the test scope.</description>
-  <!-- <url>https://aiven-open.github.io/kafka-testkit/</url> -->
 
   <inceptionYear>2026</inceptionYear>
 
@@ -88,9 +87,8 @@
   </distributionManagement>
 
   <properties>
-    <aiven.utils.version>0.2.0</aiven.utils.version>
+    <aiven.utils.version>0.3.0</aiven.utils.version>
     <latestRelease>0.1.0</latestRelease>
-    <plugin.enforcer.version>3.6.2</plugin.enforcer.version>
   </properties>
 
   <dependencies>
@@ -121,7 +119,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -269,7 +266,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-enforcer-plugin</artifactId>
-            <version>${plugin.enforcer.version}</version>
             <executions>
               <execution>
                 <id>enforce-versions</id>
@@ -300,7 +296,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-enforcer-plugin</artifactId>
-            <version>${plugin.enforcer.version}</version>
             <executions>
               <execution>
                 <id>enforce-versions</id>
