@@ -33,7 +33,7 @@ public final class SchemaRegistryContainer extends GenericContainer<SchemaRegist
   /** The schema registry local port */
   public static final int SCHEMA_REGISTRY_PORT = 8081;
 
-  /** The default Karapace version used when none is specified. */
+  /** The default Karapace version */
   public static final String DEFAULT_KARAPACE_VERSION = "6.2.4";
 
   /**
